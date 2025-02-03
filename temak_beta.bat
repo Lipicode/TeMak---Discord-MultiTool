@@ -190,7 +190,7 @@ goto main_menu
 cls
 echo --- Credits ---
 echo.
-echo All Made By lipicode/mominal
+echo All Made By lipicode/nominaz
 echo.
 echo This script uses cURL to interact with Discord's API.
 echo Feel free to contribute or suggest improvements.

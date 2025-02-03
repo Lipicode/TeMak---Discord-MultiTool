@@ -1,10 +1,7 @@
-:: Made By [LipiCode] 
+:: Made By [Nominaz/Lipicode] 
 :: Version [Beta]
-:: ====================================================
-setlocal enableextensions enabledelayedexpansion
 
-:: ----------------------------------------------------
-:: Main Menu Loop
+setlocal enableextensions enabledelayedexpansion
 :main_menu
 cls
 color 08
@@ -54,35 +51,30 @@ echo Invalid selection. Please try again.
 timeout /t 2 >nul
 goto main_menu
 
-:: ----------------------------------------------------
-:: Option 1: Single Token Checker
 :single_token
 cls
 echo --- Single Token Checker ---
 echo.
 set /p token="Enter your token: "
 
-:: Check the token using cURL.
 for /F "usebackq delims=" %%I in (curl --silent -H "Content-Type: application/json" -H "Authorization: %token%" "https://discord.com/api/v9/users/@me/library") do (
-    set "response=%%I"
+set "response=%%I"
 )
 
 echo %response% | findstr /C:"{\"message\":" >nul
 if errorlevel 1 (
-    color 2
-    echo Token is valid or locked.
-    echo.
-    curl --silent -H "Content-Type: application/json" -H "Authorization: %token%" "https://discord.com/api/v9/users/@me" >> tokeninfo.json
-    echo. >> tokeninfo.json
-    echo Token information saved in tokeninfo.json.
+color 2
+echo Token is valid or locked.
+echo.
+curl --silent -H "Content-Type: application/json" -H "Authorization: %token%" "https://discord.com/api/v9/users/@me" >> tokeninfo.json
+echo. >> tokeninfo.json
+echo Token information saved in tokeninfo.json.
 ) else (
-    color 4
-    echo Token is invalid!
+color 4
+echo Token is invalid!
 )
 call :return_to_menu single_token
 
-:: ----------------------------------------------------
-:: Option 2: Mass Token Checker from TXT File
 :mass_token
 cls
 echo --- Mass Token Checker ---
@@ -90,34 +82,32 @@ echo.
 set /p pathTokens="Enter path to tokens (*.txt): "
 
 if not exist "%pathTokens%" (
-    cls
-    echo File not found!
-    timeout /t 3 >nul
-    goto main_menu
+cls
+echo File not found!
+timeout /t 3 >nul
+goto main_menu
 )
 
 if exist tokeninfo.json del tokeninfo.json
 
 for /F "usebackq delims=" %%A in ("%pathTokens%") do (
-    for /F "usebackq delims=" %%I in (curl --silent -H "Content-Type: application/json" -H "Authorization: %%A" "https://discord.com/api/v9/users/@me/library") do (
-        set "tokenResponse=%%I"
-    )
-    echo %%A | findstr /C:"{\"message\":" >nul
-    if errorlevel 1 (
-        echo [Valid/Locked] %%A
-        curl --silent -H "Content-Type: application/json" -H "Authorization: %%A" "https://discord.com/api/v9/users/@me" >> tokeninfo.json
-        echo. >> tokeninfo.json
-    ) else (
-        echo [Invalid] %%A
-    )
+for /F "usebackq delims=" %%I in (curl --silent -H "Content-Type: application/json" -H "Authorization: %%A" "https://discord.com/api/v9/users/@me/library") do (
+set "tokenResponse=%%I"
+)
+echo %%A | findstr /C:"{\"message\":" >nul
+if errorlevel 1 (
+echo [Valid/Locked] %%A
+curl --silent -H "Content-Type: application/json" -H "Authorization: %%A" "https://discord.com/api/v9/users/@me" >> tokeninfo.json
+echo. >> tokeninfo.json
+) else (
+echo [Invalid] %%A
+)
 )
 echo.
 echo Valid tokens (if any) have been saved in tokeninfo.json.
 echo.
 call :return_to_menu mass_token
 
-:: ----------------------------------------------------
-:: Option 3: Delete Webhook(s)
 :delete_webhook
 cls
 echo --- Delete Webhook(s) ---
@@ -126,16 +116,14 @@ echo You can enter multiple webhook URLs separated by a space.
 set /p webhookInput="Enter webhook URL(s): "
 
 for %%W in (%webhookInput%) do (
-    echo Deleting webhook: %%W
-    curl --silent -X DELETE "%%W"
-    echo.
+echo Deleting webhook: %%W
+curl --silent -X DELETE "%%W"
+echo.
 )
 echo All deletion requests sent.
 echo.
 call :return_to_menu delete_webhook
 
-:: ----------------------------------------------------
-:: Option 4: Webhook Spammer
 :spam_webhook
 cls
 echo --- Webhook Spammer ---
@@ -146,21 +134,19 @@ set /p message="Enter the message content: "
 set /p amount="Enter number of times to spam (or type x for unlimited): "
 
 if /I "%amount%"=="x" (
-    :unlimited_spam
-    curl --silent -d "content=%message%" -d "username=%username%" -X POST "%webhook%"
-    goto unlimited_spam
+:unlimited_spam
+curl --silent -d "content=%message%" -d "username=%username%" -X POST "%webhook%"
+goto unlimited_spam
 ) else (
-    for /L %%a in (1, 1, %amount%) do (
-        curl --silent -d "content=%message%" -d "username=%username%" -X POST "%webhook%"
-        cls
-        echo Message sent %%a times.
-    )
+for /L %%a in (1, 1, %amount%) do (
+curl --silent -d "content=%message%" -d "username=%username%" -X POST "%webhook%"
+cls
+echo Message sent %%a times.
+)
 )
 echo.
 call :return_to_menu spam_webhook
 
-:: ----------------------------------------------------
-:: Option 5: Open GitHub
 :open_github
 cls
 echo Opening GitHub repository...
@@ -168,29 +154,26 @@ start "" "https://github.com/sipinslowly"
 timeout /t 2 >nul
 goto main_menu
 
-:: ----------------------------------------------------
-:: Option 6: Clear Token Info Log
 :clear_log
 cls
 echo --- Clear Token Info Log ---
 echo.
 if exist tokeninfo.json (
-    del tokeninfo.json
-    echo tokeninfo.json has been cleared.
+del tokeninfo.json
+echo tokeninfo.json has been cleared.
 ) else (
-    echo No tokeninfo.json file found.
+echo No tokeninfo.json file found.
 )
 echo.
 pause
 goto main_menu
 
-:: ----------------------------------------------------
-:: Option 7: Show Credits
 :credits
 cls
 echo --- Credits ---
 echo.
-echo All Made By lipicode/nominaz
+echo Batch Discord Tools originally created by SipinSlowly.
+echo Enhanced and extended by [Your Name].
 echo.
 echo This script uses cURL to interact with Discord's API.
 echo Feel free to contribute or suggest improvements.
@@ -198,8 +181,6 @@ echo.
 pause
 goto main_menu
 
-:: ----------------------------------------------------
-:: Option 8: ID - Token Tool
 :token_id_tool
 cls
 echo --- ID - Token Tool ---
@@ -209,8 +190,8 @@ echo Retrieving user information...
 curl --silent -H "Authorization: %token%" -H "Content-Type: application/json" "https://discord.com/api/v9/users/@me" > temp.json
 
 for /F "tokens=2 delims=:" %%a in ('findstr /C:"\"id\":" temp.json') do (
-    set userId=%%a
-    goto gotId
+set userId=%%a
+goto gotId
 )
 :gotId
 set userId=%userId: =%
@@ -223,15 +204,13 @@ echo.
 pause
 call :return_to_menu token_id_tool
 
-:: ----------------------------------------------------
-:: Option 9: ID - IPv4 Tool
 :ipv4_tool
 cls
 echo --- ID - IPv4 Tool ---
 echo.
 echo Retrieving your public IPv4 address...
 for /F "usebackq delims=" %%I in (curl --silent "https://api.ipify.org") do (
-    set "ipv4=%%I"
+set "ipv4=%%I"
 )
 echo.
 echo Your public IPv4 address is: %ipv4%
@@ -239,8 +218,6 @@ echo.
 pause
 call :return_to_menu ipv4_tool
 
-:: ----------------------------------------------------
-:: Option 10: ID - Info Tool
 :info_tool
 cls
 echo --- ID - Info Tool ---
@@ -250,24 +227,24 @@ echo Retrieving your account information...
 curl --silent -H "Authorization: %token%" -H "Content-Type: application/json" "https://discord.com/api/v9/users/@me" > info_temp.json
 
 for /F "tokens=2 delims=:" %%a in ('findstr /C:"\"id\":" info_temp.json') do (
-    set userId=%%a
-    goto gotUserId
+set userId=%%a
+goto gotUserId
 )
 :gotUserId
 set userId=%userId: =%
 set userId=%userId:,=%
 set userId=%userId:"=%
 for /F "tokens=2 delims=:" %%a in ('findstr /C:"\"username\":" info_temp.json') do (
-    set username=%%a
-    goto gotUsername
+set username=%%a
+goto gotUsername
 )
 :gotUsername
 set username=%username: =%
 set username=%username:,=%
 set username=%username:"=%
 for /F "tokens=2 delims=:" %%a in ('findstr /C:"\"discriminator\":" info_temp.json') do (
-    set discriminator=%%a
-    goto gotDisc
+set discriminator=%%a
+goto gotDisc
 )
 :gotDisc
 set discriminator=%discriminator: =%
@@ -281,29 +258,27 @@ echo Password: Not Available
 echo.
 set /p useGuild="Do you want to retrieve join date from a guild? (Y/N): "
 if /I "%useGuild%"=="Y" (
-    set /p guildId="Enter Guild ID: "
-    echo Retrieving guild join date...
-    curl --silent -H "Authorization: %token%" -H "Content-Type: application/json" "https://discord.com/api/v9/guilds/%guildId%/members/@me" > join_temp.json
-    for /F "tokens=2 delims=:" %%a in ('findstr /C:"\"joined_at\":" join_temp.json') do (
-        set joinedAt=%%a
-        goto gotJoin
-    )
-    :gotJoin
-    set joinedAt=%joinedAt: =%
-    set joinedAt=%joinedAt:,=%
-    set joinedAt=%joinedAt:"=%
-    echo Joined At: %joinedAt%
-    del join_temp.json
+set /p guildId="Enter Guild ID: "
+echo Retrieving guild join date...
+curl --silent -H "Authorization: %token%" -H "Content-Type: application/json" "https://discord.com/api/v9/guilds/%guildId%/members/@me" > join_temp.json
+for /F "tokens=2 delims=:" %%a in ('findstr /C:"\"joined_at\":" join_temp.json') do (
+set joinedAt=%%a
+goto gotJoin
+)
+:gotJoin
+set joinedAt=%joinedAt: =%
+set joinedAt=%joinedAt:,=%
+set joinedAt=%joinedAt:"=%
+echo Joined At: %joinedAt%
+del join_temp.json
 ) else (
-    echo Joined At: Not Retrieved
+echo Joined At: Not Retrieved
 )
 del info_temp.json
 echo.
 pause
 call :return_to_menu info_tool
 
-:: ----------------------------------------------------
-:: Option 11: Guild Info Tool
 :guild_info_tool
 cls
 echo --- Guild Info Tool ---
@@ -313,8 +288,8 @@ set /p guildId="Enter Guild ID: "
 echo Retrieving guild information...
 curl --silent -H "Authorization: %token%" -H "Content-Type: application/json" "https://discord.com/api/v9/guilds/%guildId%" > guild_info_temp.json
 for /F "tokens=2 delims=:" %%a in ('findstr /C:"\"name\":" guild_info_temp.json') do (
-    set guildName=%%a
-    goto gotGuildName
+set guildName=%%a
+goto gotGuildName
 )
 :gotGuildName
 set guildName=%guildName: =%
@@ -326,32 +301,28 @@ del guild_info_temp.json
 pause
 call :return_to_menu guild_info_tool
 
-:: ----------------------------------------------------
-:: Option 12: Mass Webhook Spammer
 :mass_webhook_spammer
 cls
 echo --- Mass Webhook Spammer ---
 echo.
 set /p pathWebhooks="Enter path to webhooks file (*.txt): "
 if not exist "%pathWebhooks%" (
-    echo File not found!
-    pause
-    goto mass_webhook_spammer
+echo File not found!
+pause
+goto mass_webhook_spammer
 )
 set /p message="Enter the message content: "
 set /p amount="Enter number of times to spam each webhook: "
 for /F "usebackq delims=" %%W in ("%pathWebhooks%") do (
-    echo Spamming webhook: %%W
-    for /L %%i in (1,1,%amount%) do (
-        curl --silent -d "content=%message%" -X POST "%%W"
-    )
-    echo Done spamming %%W
+echo Spamming webhook: %%W
+for /L %%i in (1,1,%amount%) do (
+curl --silent -d "content=%message%" -X POST "%%W"
+)
+echo Done spamming %%W
 )
 pause
 call :return_to_menu mass_webhook_spammer
 
-:: ----------------------------------------------------
-:: Option 13: User Avatar Tool
 :user_avatar_tool
 cls
 echo --- User Avatar Tool ---
@@ -360,34 +331,32 @@ set /p token="Enter your token: "
 echo Retrieving user information...
 curl --silent -H "Authorization: %token%" -H "Content-Type: application/json" "https://discord.com/api/v9/users/@me" > avatar_temp.json
 for /F "tokens=2 delims=:" %%a in ('findstr /C:"\"id\":" avatar_temp.json') do (
-    set userId=%%a
-    goto gotUserIdAvatar
+set userId=%%a
+goto gotUserIdAvatar
 )
 :gotUserIdAvatar
 set userId=%userId: =%
 set userId=%userId:,=%
 set userId=%userId:"=%
 for /F "tokens=2 delims=:" %%a in ('findstr /C:"\"avatar\":" avatar_temp.json') do (
-    set avatarHash=%%a
-    goto gotAvatarHash
+set avatarHash=%%a
+goto gotAvatarHash
 )
 :gotAvatarHash
 set avatarHash=%avatarHash: =%
 set avatarHash=%avatarHash:,=%
 set avatarHash=%avatarHash:"=%
 if "%avatarHash%"=="null" (
-    echo No custom avatar found. Using default avatar.
-    set avatarUrl=https://cdn.discordapp.com/embed/avatars/0.png
+echo No custom avatar found. Using default avatar.
+set avatarUrl=https://cdn.discordapp.com/embed/avatars/0.png
 ) else (
-    set avatarUrl=https://cdn.discordapp.com/avatars/%userId%/%avatarHash%.png
+set avatarUrl=https://cdn.discordapp.com/avatars/%userId%/%avatarHash%.png
 )
 echo Your avatar URL is: %avatarUrl%
 del avatar_temp.json
 pause
 call :return_to_menu user_avatar_tool
 
-:: ----------------------------------------------------
-:: Option 14: Role Checker Tool
 :role_checker_tool
 cls
 echo --- Role Checker Tool ---
@@ -397,12 +366,11 @@ set /p guildId="Enter Guild ID: "
 echo Retrieving your roles in the guild...
 curl --silent -H "Authorization: %token%" -H "Content-Type: application/json" "https://discord.com/api/v9/guilds/%guildId%/members/@me" > roles_temp.json
 for /F "tokens=2 delims=:" %%a in ('findstr /C:"\"roles\":" roles_temp.json') do (
-    set roles=%%a
-    goto gotRoles
+set roles=%%a
+goto gotRoles
 )
 :gotRoles
 set roles=%roles: =%
-:: Clean up the roles string if needed.
 set roles=%roles:[=%
 set roles=%roles:]=%
 echo Your roles in the guild: %roles%
@@ -410,31 +378,27 @@ del roles_temp.json
 pause
 call :return_to_menu role_checker_tool
 
-:: ----------------------------------------------------
-:: Option 15: Snowflake Converter Tool
 :snowflake_converter_tool
 cls
 echo --- Snowflake Converter Tool ---
 echo.
 set /p snowflake="Enter the Discord Snowflake ID: "
 for /F "delims=" %%D in ('powershell -NoProfile -Command "$ts = ([math]::Floor(%snowflake% / 4194304)) + 1420070400000; [DateTimeOffset]::FromUnixTimeMilliseconds($ts).ToLocalTime().ToString()"') do (
-    set creationDate=%%D
+set creationDate=%%D
 )
 echo The creation date for snowflake %snowflake% is: %creationDate%
 pause
 call :return_to_menu snowflake_converter_tool
 
-:: ----------------------------------------------------
-:: Reusable routine: Prompt to return to main menu
 :return_to_menu
 echo.
 set /p backChoice="Do you want to return to the main menu? [Y/N]: "
 if /I "%backChoice%"=="Y" (
-    color 07
-    goto main_menu
+color 07
+goto main_menu
 ) else if /I "%backChoice%"=="N" (
-    goto %1
+goto %1
 ) else (
-    color 07
-    goto main_menu
+color 07
+goto main_menu
 )

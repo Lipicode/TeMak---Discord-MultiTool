@@ -150,7 +150,7 @@ call :return_to_menu spam_webhook
 :open_github
 cls
 echo Opening GitHub repository...
-start "" "https://github.com/sipinslowly"
+start "" "https://github.com/Lipicode?tab=repositories"
 timeout /t 2 >nul
 goto main_menu
 
